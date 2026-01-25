@@ -1472,7 +1472,7 @@ SurfingMinigame_DrawResultsScreen:
 	ret
 
 .BeachTilemap:
-INCBIN "gfx/surfing_pikachu/unknown_f8946.map"
+INCBIN "gfx/surfing_pikachu/unknown_f8946.tilemap"
 .BeachTilemapEnd:
 
 .PlaceTextbox:
@@ -1725,7 +1725,7 @@ DidPlayerGetAHighScore:
 
 SurfingMinigame_PlayPikaCryIfSurfingPikaInParty:
 	push de
-	callfar IsSurfingPikachuInThePlayersParty
+	callfar IsSurfingStarterPikachuInParty
 	pop de
 	ret nc
 	callfar PlayPikachuSoundClip
@@ -2457,10 +2457,10 @@ DrawSurfingPikachuMinigameIntroBackground:
 	jr nz, .fill_row
 	ret
 
-Tilemap_f90bc: INCBIN "gfx/surfing_pikachu/unknown_f90bc.map"
-Tilemap_f91ac: INCBIN "gfx/surfing_pikachu/unknown_f91ac.map"
-Tilemap_f91bb: INCBIN "gfx/surfing_pikachu/unknown_f91bb.map"
-Tilemap_f91c8: INCBIN "gfx/surfing_pikachu/unknown_f91c8.map"
+Tilemap_f90bc: INCBIN "gfx/surfing_pikachu/unknown_f90bc.tilemap"
+Tilemap_f91ac: INCBIN "gfx/surfing_pikachu/unknown_f91ac.tilemap"
+Tilemap_f91bb: INCBIN "gfx/surfing_pikachu/unknown_f91bb.tilemap"
+Tilemap_f91c8: INCBIN "gfx/surfing_pikachu/unknown_f91c8.tilemap"
 
 SurfingMinigame_UpdateLYOverrides:
 	ld hl, wLYOverrides + $10

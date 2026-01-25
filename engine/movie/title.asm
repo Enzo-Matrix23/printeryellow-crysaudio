@@ -53,7 +53,7 @@ DisplayTitleScreen:
 	callfar LoadYellowTitleScreenGFX
 	ld hl, vBGMap0
 	ld bc, (vBGMap1 tile $40) - vBGMap0
-	ld a, " "
+	ld a, ' '
 	call FillMemory
 	callfar TitleScreen_PlacePokemonLogo
 	call FillSpriteBuffer0WithAA
@@ -241,7 +241,6 @@ ENDC
 .doClearSaveDialogue
 	farjp DoClearSaveDialogue
 
-
 TitleScreenCopyTileMapToVRAM:
 	ldh [hAutoBGTransferDest + 1], a
 	jp Delay3
@@ -255,7 +254,7 @@ LoadCopyrightAndTextBoxTiles:
 LoadCopyrightTiles:
 	ld de, NintendoCopyrightLogoGraphics
 	ld hl, vChars2 tile $60
-	lb bc, BANK(NintendoCopyrightLogoGraphics), (TextBoxGraphics + $10 - NintendoCopyrightLogoGraphics) / $10 ; bug: overflows into text box graphics and copies the "A" tile
+	lb bc, BANK(NintendoCopyrightLogoGraphics), (TextBoxGraphics + $10 - NintendoCopyrightLogoGraphics) / TILE_SIZE ; bug: overflows into text box graphics and copies the "A" tile
 	call CopyVideoData
 	hlcoord 2, 7
 	ld de, CopyrightTextString
@@ -283,7 +282,6 @@ DoTitleScreenFunction:
 	ld h, [hl]
 	ld l, a
 	jp hl
-
 
 .Jumptable:
 	dw .Nop

@@ -161,10 +161,6 @@ SECTION "Pokedex Rating SFX Routines", ROMX
 INCLUDE "audio/pokedex_rating_sfx.asm"
 
 
-SECTION "Surfing Pikachu GFX", ROMX
-
-INCLUDE "gfx/surfing_pikachu.asm"
-
 ; crystal:
 
 SECTION "Audio Engine 1", ROMX
