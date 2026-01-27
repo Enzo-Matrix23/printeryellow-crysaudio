@@ -1,3 +1,9 @@
+GetNextTrainerDataByte:
+	ld a, [wEnemyPartyBank]
+	call GetFarByte
+	inc hl
+	ret
+
 ReadTrainer:
 
 ; don't change any moves in a link battle
@@ -17,11 +23,16 @@ ReadTrainer:
 ; get the pointer to trainer data for this class
 	ld a, [wTrainerClass] ; get trainer class
 	dec a
+	ld c, a
 	add a
+	ASSERT $FF >= (3 * NUM_TRAINERS), "Too many trainer classes for this implementation of bc = a * 3"
+	add c
 	ld hl, TrainerDataPointers
 	ld c, a
 	ld b, 0
 	add hl, bc ; hl points to trainer class
+	ld a, [hli]
+	ld [wEnemyPartyBank], a
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -34,10 +45,12 @@ ReadTrainer:
 .CheckNextTrainer
 	dec b
 	jr z, .IterateTrainer
-.SkipTrainer
-	ld a, [hli]
-	and a
-	jr nz, .SkipTrainer
+	call GetNextTrainerDataByte
+	add l
+	ld l, a
+	adc h
+	sub l
+	ld h, a
 	jr .CheckNextTrainer
 
 ; if the first byte of trainer data is FF,
@@ -46,80 +59,177 @@ ReadTrainer:
 ; - if [wLoneAttackNo] != 0, one pokemon on the team has a special move
 ; else the first byte is the level of every pokemon on the team
 .IterateTrainer
-	ld a, [hli]
-	cp $FF ; is the trainer special?
-	jr z, .SpecialTrainer ; if so, check for special moves
-	ld [wCurEnemyLevel], a
-.LoopTrainerData
-	ld a, [hli]
-	and a ; have we reached the end of the trainer data?
-	jp z, .AddAdditionalMoveData
-	ld [wCurPartySpecies], a
-	ld a, ENEMY_PARTY_DATA
-	ld [wMonDataLocation], a
-	push hl
-	call AddPartyMon
-	pop hl
-	jr .LoopTrainerData
-.SpecialTrainer
-; if this code is being run:
-; - each pokemon has a specific level
-;      (as opposed to the whole team being of the same level)
-; - if [wLoneAttackNo] != 0, one pokemon on the team has a special move
-	ld a, [hli]
-	and a ; have we reached the end of the trainer data?
-	jr z, .AddAdditionalMoveData
-	ld [wCurEnemyLevel], a
-	ld a, [hli]
-	ld [wCurPartySpecies], a
-	ld a, ENEMY_PARTY_DATA
-	ld [wMonDataLocation], a
-	push hl
-	call AddPartyMon
-	pop hl
-	jr .SpecialTrainer
-.AddAdditionalMoveData
-; does the trainer have additional move data?
-	ld a, [wTrainerClass]
-	ld b, a
-	ld a, [wTrainerNo]
+	call GetNextTrainerDataByte
 	ld c, a
-	ld hl, SpecialTrainerMoves
-.loopAdditionalMoveData
-	ld a, [hli]
-	cp $ff
-	jr z, .FinishUp
-	cp b
-	jr nz, .asm_39c46
-	ld a, [hli]
-	cp c
-	jr nz, .asm_39c46
+	call GetNextTrainerDataByte
+	dec c
+	ld [wEnemyPartyFlags], a
+	; c is remaining trainer data size
+	; so trainer data ends at hl + c
+	; set c to l + c to stop reading when l == c
+	ld a, l
+	add c
+	ld c, a
+	push bc
+.LoopTrainerData
+	pop bc
+	ld a, l
+	sub c ; have we reached the end of the trainer data?
+	jp z, .FinishUp
+	push bc
+
+	call GetNextTrainerDataByte
+	ld [wCurEnemyLevel], a
+	call GetNextTrainerDataByte
+	ld [wCurPartySpecies], a
+	ld a, ENEMY_PARTY_DATA
+	ld [wMonDataLocation], a
+	call AddPartyMon
+; tr_moves loading
+; flag check
+	ld a, [wEnemyPartyFlags]
+	and TRAINERTYPE_MOVES
+	jr z, .noMoves
+
+; actual loading
+	ld a, [wEnemyPartyCount]
+	dec a ; last mon in team
+	push hl
+	ld hl, wEnemyMon1Moves
+	ld c, wEnemyMon2 - wEnemyMon1
+	call AddNTimes
 	ld d, h
 	ld e, l
-.writeAdditionalMoveDataLoop
-	ld a, [de]
+	pop hl
+
+	ld b, NUM_MOVES
+.copyMoves
+	call GetNextTrainerDataByte
+	ld [de], a
 	inc de
-	and a
-	jp z, .FinishUp
-	dec a
-	ld hl, wEnemyMon1Moves
+	dec b
+	jr nz, .copyMoves
+.noMoves
+; tr_dvs loading
+; flag check
+	ld a, [wEnemyPartyFlags]
+	and TRAINERTYPE_DVS
+	jr z, .noDVs
+
+; actual loading
+	ld a, [wEnemyPartyCount]
+	dec a ; last mon in team
+
+	push hl
+	ld hl, wEnemyMon1DVs
 	ld bc, wEnemyMon2 - wEnemyMon1
 	call AddNTimes
-	ld a, [de]
+	ld d, h
+	ld e, l
+	pop hl
+
+	call GetNextTrainerDataByte
+	ld [de], a
 	inc de
-	dec a
-	ld c, a
-	ld b, 0
-	add hl, bc
-	ld a, [de]
+	call GetNextTrainerDataByte
+	ld [de], a
+
+.noDVs
+; tr_stat_exp loading
+; flag check
+	ld a, [wEnemyPartyFlags]
+	and TRAINERTYPE_STAT_EXP
+	jr z, .noStatExp
+
+; actual loading
+	ld a, [wEnemyPartyCount]
+	dec a ; last mon in team
+
+	push hl
+	ld hl, wEnemyMon1HPExp
+	ld bc, wEnemyMon2 - wEnemyMon1
+	call AddNTimes
+	ld d, h
+	ld e, l
+	pop hl
+
+	ld b, NUM_STATS * 2
+.copyStatExp
+	call GetNextTrainerDataByte
+	ld [de], a
 	inc de
-	ld [hl], a
-	jr .writeAdditionalMoveDataLoop
-.asm_39c46
+	dec b
+	jr nz, .copyStatExp
+
+.noStatExp
+; tr_nick loading
+; flag check
+	ld a, [wEnemyPartyFlags]
+	and TRAINERTYPE_NICKNAMES
+	jr z, .noNicks
+
+	ld a, [wEnemyPartyCount]
+	dec a ; last mon in team
+
+	push hl
+	ld hl, wEnemyMonNicks
+	ld bc, wEnemyMon2Nick - wEnemyMon1Nick
+	call AddNTimes
+	ld d, h
+	ld e, l
+	pop hl
+
+.nickCopyLoop
+	call GetNextTrainerDataByte
+	ld [de], a
+	inc de
+	cp "@"
+	jr nz, .nickCopyLoop
+
+.noNicks
+
+	ld a, [wEnemyPartyFlags]
+	and TRAINERTYPE_DVS | TRAINERTYPE_STAT_EXP
+	jp z, .LoopTrainerData
+
+	push hl
+
+	ld a, [wEnemyPartyCount]
+	dec a ; last mon in team
+	ld hl, wEnemyMon1MaxHP
+	ld bc, wEnemyMon2 - wEnemyMon1
+	call AddNTimes
+	ld d, h
+	ld e, l
+
+	ld a, [wEnemyPartyCount]
+	dec a ; last mon in team
+	ld hl, wEnemyMon1HPExp - 1
+	call AddNTimes
+
+	ld b, TRUE
+	push de
+	call CalcStats
+
+	ld a, [wEnemyPartyCount]
+	dec a ; last mon in team
+	ld hl, wEnemyMon1HP
+	ld bc, wEnemyMon2 - wEnemyMon1
+	call AddNTimes
+	ld d, h
+	ld e, l
+	pop hl
+
+;copy max HP into HP
 	ld a, [hli]
-	and a
-	jr nz, .asm_39c46
-	jr .loopAdditionalMoveData
+	ld [de], a
+	inc de
+	ld a, [hl]
+	ld [de], a
+
+	pop hl
+
+	jp .LoopTrainerData
 .FinishUp
 ; clear wAmountMoneyWon addresses
 	xor a
