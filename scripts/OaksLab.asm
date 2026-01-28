@@ -1036,11 +1036,40 @@ OaksLabPlayerReceivedMonText:
 	call AddPartyMon
 	ld a, LIGHT_BALL_GSC
 	ld [wPartyMon1CatchRate], a
+	ld a, $FF
+	ld [wPartyMon1DVs], a
+	ld [wPartyMon1DVs + 1], a
+	ld [wWhichPokemon], a
+	call StatRecalculation
 	call DisablePikachuOverworldSpriteDrawing
 	SetEvent EVENT_GOT_STARTER
 	ld hl, wStatusFlags4
 	set BIT_GOT_STARTER, [hl]
 	jp TextScriptEnd
+
+StatRecalculation:
+    ld a, 0
+    ld [wMonDataLocation], a
+    call LoadMonData
+    ld a, [wWhichPokemon]
+    ld hl, wPartyMons
+    ld bc, wPartyMon2 - wPartyMon1
+    call AddNTimes
+    push hl
+    ld bc, wPartyMon1Level - wPartyMon1
+    add hl, bc ; hl now points to level
+    ld a, [hl] ; a = level
+    ld [wCurEnemyLevel], a ; store level
+    pop hl
+    ld bc, wPartyMon1Stats - wPartyMon1
+    add hl, bc
+    ld d, h
+    ld e, l ; de now points to stats
+    ld bc, (wPartyMon1Exp + 2) - wPartyMon1Stats
+    add hl, bc ; hl now points to LSB of experience
+    ld b, 1
+    call CalcStats ; recalculate stats
+    ret
 
 OaksLabOakGivesText:
 	text_far _OaksLabOakGivesText

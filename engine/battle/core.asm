@@ -1572,7 +1572,7 @@ TryRunningFromBattle:
 	ld hl, hEnemySpeed
 	ld c, 2
 	call StringCmp
-	jr nc, .canEscape ; jump if player speed greater than enemy speed
+	jp nc, .canEscape ; jump if player speed greater than enemy speed
 	xor a
 	ldh [hMultiplicand], a
 	ld a, 32

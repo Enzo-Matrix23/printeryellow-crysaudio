@@ -413,7 +413,7 @@ PrintFanClubPortrait::
 	call Printer_ResetJoypadHRAM
 .print_loop
 	call JoypadLowSensitivity
-	call Printer_CheckPressingB
+	call Printer_StopIfPressB
 	jr c, .pressed_b
 	ld a, [wPrinterSendState]
 	bit 7, a
@@ -1046,27 +1046,27 @@ Printer_PrepareStatExp_Page2::
 	res BIT_SINGLE_SPACED_LINES, [hl]
 
 	hlcoord 8, 2
-	ld de, wLoadedMonHPExp + 1
+	ld de, wLoadedMonHPExp
 	lb bc, 2, 5
 	call PrintNumber
 
 	hlcoord 8, 3
-	ld de, wLoadedMonAttackExp + 1
+	ld de, wLoadedMonAttackExp
 	lb bc, 2, 5
 	call PrintNumber
 
 	hlcoord 8, 4
-	ld de, wLoadedMonDefenseExp + 1
+	ld de, wLoadedMonDefenseExp
 	lb bc, 2, 5
 	call PrintNumber
 
 	hlcoord 8, 5
-	ld de, wLoadedMonSpeedExp + 1
+	ld de, wLoadedMonSpeedExp
 	lb bc, 2, 5
 	call PrintNumber
 
 	hlcoord 8, 6
-	ld de, wLoadedMonSpecialExp + 1
+	ld de, wLoadedMonSpecialExp
 	lb bc, 2, 5
 	call PrintNumber
 

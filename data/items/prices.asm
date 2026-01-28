@@ -98,4 +98,7 @@ ItemPrices::
 	bcd3 0     ; FLOOR_10F
 	bcd3 0     ; FLOOR_11F
 	bcd3 0     ; FLOOR_B4F
+	bcd3 0     ; PALLET_TOWN_M
+	bcd3 0     ; POKECENTER_MS
+	bcd3 0     ; GYM_MUSIC_PLA
 	assert_table_length NUM_ITEMS + NUM_FLOORS

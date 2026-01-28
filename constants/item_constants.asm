@@ -110,6 +110,11 @@ DEF NUM_ITEMS EQU const_value - 1
 	const FLOOR_10F     ; $5F
 	const FLOOR_11F     ; $60
 	const FLOOR_B4F     ; $61
+
+; for sound test
+	const PALLET_TOWN_M ; $62
+	const POKECENTER_MS ; $63
+	const GYM_MUSIC_PLA ; $64
 DEF NUM_FLOORS EQU const_value - 1 - NUM_ITEMS
 
 	const_next $C4

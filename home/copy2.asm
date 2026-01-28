@@ -170,6 +170,21 @@ GetFarByte::
 	pop bc
 	ret
 
+GetFarByte2::
+	; bankswitch to new bank
+	call BankswitchHome
+
+	; get byte from new bank
+	ld a, [hl]
+	ldh [hFarByte], a
+
+	; bankswitch to previous bank
+	call BankswitchBack
+
+	; return retrieved value in a
+	ldh a, [hFarByte]
+	ret
+
 ClearScreenArea::
 ; Clear tilemap area cxb at hl.
 	ld a, ' '

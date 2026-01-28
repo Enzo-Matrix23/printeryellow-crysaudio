@@ -283,7 +283,7 @@ INCLUDE "engine/battle/misc.asm"
 
 INCLUDE "engine/battle/read_trainer_party.asm"
 
-INCLUDE "data/trainers/parties.asm"
+INCLUDE "data/trainers/parties_pointers.asm"
 
 TrainerAI:
 	ld a, [wIsInBattle]

@@ -166,6 +166,10 @@ INCLUDE "engine/battle/draw_hud_pokeball_gfx.asm"
 INCLUDE "gfx/trade.asm"
 INCLUDE "engine/pokemon/evos_moves.asm"
 
+SECTION "Trainer Parties 1", ROMX
+
+INCLUDE "data/trainers/parties.asm"
+
 
 SECTION "Battle Core", ROMX
 

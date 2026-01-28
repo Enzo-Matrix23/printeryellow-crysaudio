@@ -98,4 +98,7 @@ ItemNames::
 	li "10F"
 	li "11F"
 	li "B4F"
+	li "PALLET TOWN"
+	li "# CENTER"
+	li "GYM MUSIC"
 	assert_list_length NUM_ITEMS + NUM_FLOORS

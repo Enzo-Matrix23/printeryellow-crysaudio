@@ -1,6 +1,6 @@
 GetNextTrainerDataByte:
 	ld a, [wEnemyPartyBank]
-	call GetFarByte
+	call GetFarByte2
 	inc hl
 	ret
 

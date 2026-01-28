@@ -2449,8 +2449,10 @@ wLinkEnemyTrainerName:: ds NAME_LENGTH
 
 wSerialEnemyDataBlock:: ; ds $1a8
 
-	ds 9
+	ds 7
 
+wEnemyPartyBank:: db
+wEnemyPartyFlags:: db
 wEnemyPartyCount:: db
 wEnemyPartySpecies:: ds PARTY_LENGTH + 1
 
