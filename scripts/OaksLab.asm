@@ -1039,6 +1039,7 @@ OaksLabPlayerReceivedMonText:
 	ld a, $FF
 	ld [wPartyMon1DVs], a
 	ld [wPartyMon1DVs + 1], a
+	xor a
 	ld [wWhichPokemon], a
 	call StatRecalculation
 	call DisablePikachuOverworldSpriteDrawing
